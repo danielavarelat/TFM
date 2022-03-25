@@ -20,18 +20,21 @@ def convert_nii_h5(file_nii, file_h5, order_dataset="xyz", order_algorithm="zyx"
     print("hdf5 file created --> {}".format(file_h5))
 
 
-def read_nii(file, cellpose=True):
+def read_nii_XYZ(file, get_ZYX=True, get_ZXY=False):
     """."""
-    if cellpose:
+    if get_ZYX:
         array_zyx = np.swapaxes(nib.load(file).get_fdata(), 0, 2)
         print("Rotating axes: zyx")
         return array_zyx
+    if get_ZXY:
+        array_zxy = np.swapaxes(np.swapaxes(nib.load(file).get_fdata(), 0, 2), 1, 2)
+        return array_zxy
     return nib.load(file).get_fdata()
 
 
 def read_multiple_nii(list_files):
     """."""
-    arrays = [read_nii(i) for i in list_files]
+    arrays = [read_nii_XYZ(i) for i in list_files]
     return arrays
 
 

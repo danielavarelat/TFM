@@ -15,7 +15,7 @@ output_type = "labels"
 save_directory = "output"
 out_ext = ".h5"
 algorithm_name = "GASP"
-gasp_linkage_criteria = "mutex_watershed"  # "average"
+gasp_linkage_criteria = "average"  # "mutex_watershed"
 beta = 0.5
 ws_threshold = 0.5
 ws_minsize = 30
@@ -142,8 +142,10 @@ def post_filtering_size(segmentation):
 
 
 if __name__ == "__main__":
-    PROB = "/Users/dvarelat/Documents/MASTER/TFM/methods/pytorch3dunet/crop0_zyx_mem_orig_predictions.h5"
-    outfile = "/Users/dvarelat/Documents/MASTER/TFM/methods/postpro/crop0_original_XYZ_predictions_MUTEX_code.nii.gz"
+    PROB = "/Users/dvarelat/Documents/MASTER/TFM/methods/pytorch3dunet/20190401_E2_mGFP_decon_0.5_zyx_predictions.h5"
+    outfile = "/Users/dvarelat/Documents/MASTER/TFM/methods/pytorch3dunet/20190401_E2_mGFP_decon_0.5_xyz_predictions.nii.gz"
+    # PROB = "/homedtic/dvarela/pretrained/pytunet3D/mytest_mem/20190401_E2_mGFP_decon_0.5_zyx_predictions.h5"
+    # outfile = "/homedtic/dvarela/pretrained/pytunet3D/mytest_mem/20190401_E2_mGFP_decon_0.5_zyx_predictions_GASP.nii.gz"
     seg = main(PROB)
     seg_post = post_filtering_size(seg)
     ## save as nii.qz
