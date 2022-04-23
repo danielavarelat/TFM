@@ -1,5 +1,5 @@
 # Download test data from: https://osf.io/8jz7e/
-model_path: /homedtic/dvarela/pretrained/pytunet3D/best_checkpoint_confocal_boundary.pytorch
+model_path: /homedtic/dvarela/pretrained/pytunet3D/best_checkpoint_lightsheet_boundary.pytorch
 model:
   name: UNet3D
   # number of input channels to the model
@@ -18,7 +18,7 @@ predictor:
   name: 'StandardPredictor'
 loaders:
   # save predictions to output_dir
-  output_dir: /homedtic/dvarela
+  output_dir: /homedtic/dvarela/morena
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
   batch_size: 1
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume

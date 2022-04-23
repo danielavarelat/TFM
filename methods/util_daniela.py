@@ -20,14 +20,15 @@ def convert_nii_h5(file_nii, file_h5, order_dataset="xyz", order_algorithm="zyx"
     print("hdf5 file created --> {}".format(file_h5))
 
 
-def read_nii_XYZ(file, get_ZYX=True, get_ZXY=False):
+def read_nii_XYZ(file, get_ZYX=False, get_ZXY=False):
     """."""
     if get_ZYX:
         array_zyx = np.swapaxes(nib.load(file).get_fdata(), 0, 2)
-        print("Rotating axes: zyx")
+        print("AXES: zyx")
         return array_zyx
     if get_ZXY:
         array_zxy = np.swapaxes(np.swapaxes(nib.load(file).get_fdata(), 0, 2), 1, 2)
+        print("AXES: zxy")
         return array_zxy
     return nib.load(file).get_fdata()
 
@@ -46,3 +47,6 @@ def save_nii(array, fileNII):  # pylint:disable=invalid-name
         print("Saved {}".format(fileNII))
     else:
         print("Check array type is np.uint16")
+        imgMy = nib.Nifti1Image(array.astype("uint16"), np.eye(4))
+        nib.save(imgMy, fileNII)
+        print("Saved {}".format(fileNII))

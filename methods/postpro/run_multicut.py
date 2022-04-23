@@ -93,17 +93,19 @@ def post_filtering_size(segmentation):
 
 
 if __name__ == "__main__":
-    # PROB = "/Users/dvarelat/Documents/MASTER/TFM/methods/pytorch3dunet/crop0_zyx_mem_orig_predictions.h5"
-    # outfile = "/Users/dvarelat/Documents/MASTER/TFM/methods/postpro/crop0_original_XYZ_predictions_MULTICUT_code.nii.gz"
-    PROB = "/homedtic/dvarela/pretrained/pytunet3D/mytest_mem/20190401_E2_mGFP_decon_0.5_zyx_predictions.h5"
-    outfile = "/homedtic/dvarela/pretrained/pytunet3D/mytest_mem/20190401_E2_mGFP_decon_0.5_zyx_predictions_MULTICUT.nii.gz"
+    PROB = "/homedtic/dvarela/RESULTS/membranes/PNAS/20190404_E1_mGFP_CardiacRegion_0.5_ZYX_predictions.h5"
+    outfile = "/homedtic/dvarela/RESULTS/membranes/MULTICUT_PNAS/20190404_E1_mGFP_CardiacRegion_0.5_ZYX_predictions_MULTICUT.nii.gz"
+
+    
     seg = main(PROB)
     seg_post = post_filtering_size(seg)
     ## save as nii.qz
-    
+
     ni_img = nib.Nifti1Image(
-        np.swapaxes(seg_post, 0, 2).astype("uint16"), affine=np.eye(4)
+        seg_post.astype("uint16"),
+        affine=np.eye(4),
     )
+
     nib.save(
         ni_img,
         outfile,

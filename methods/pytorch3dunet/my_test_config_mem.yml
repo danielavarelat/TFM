@@ -1,5 +1,6 @@
 # Download test data from: https://osf.io/8jz7e/
-model_path: /homedtic/dvarela/pretrained/pytunet3D/best_checkpoint_confocal_boundary.pytorch
+#model_path: /homedtic/dvarela/pretrained/pytunet3D/models/best_checkpoint_confocal_boundary.pytorch
+model_path: /homedtic/dvarela/pretrained/pytunet3D/models/best_checkpoint_PNAS_plantseg.pytorch
 model:
   name: UNet3D
   # number of input channels to the model
@@ -18,7 +19,7 @@ predictor:
   name: 'StandardPredictor'
 loaders:
   # save predictions to output_dir
-  output_dir: /homedtic/dvarela/specimens/20190401_E2/unet3d_membrane
+  output_dir: /homedtic/dvarela/RESULTS/membranes/PNAS
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
   batch_size: 1
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
@@ -28,7 +29,11 @@ loaders:
   # test loaders configuration
   test:
     file_paths:
-      - /homedtic/dvarela/specimens/20190401_E2/membranes_decon_crops
+      - /homedtic/dvarela/CardiacRegion/20190119_E1/20190119_E1_mGFP_CardiacRegion_0.5_ZYX.h5
+      - /homedtic/dvarela/CardiacRegion/20190208_E2/20190208_E2_mGFP_CardiacRegion_0.5_ZYX.h5
+      - /homedtic/dvarela/CardiacRegion/20190401_E1/20190401_E1_mGFP_CardiacRegion_0.5_ZYX.h5
+      - /homedtic/dvarela/CardiacRegion/20190401_E2/20190401_E2_mGFP_CardiacRegion_0.5_ZYX.h5
+      - /homedtic/dvarela/CardiacRegion/20190404_E1/20190404_E1_mGFP_CardiacRegion_0.5_ZYX.h5
 
     slice_builder:
       name: SliceBuilder
