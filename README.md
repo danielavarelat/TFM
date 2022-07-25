@@ -32,6 +32,7 @@ Z res = 0.99
 Cardiac development starts with cardiac **MESODERM**. 
 
 
+## PIPELINE
 
 INPUTS: 
 	- DATA/DECON_05/DAPI/20190119_E1_DAPI_decon_0.5.nii.gz
@@ -43,12 +44,12 @@ INPUTS:
 	• methods/cardiac_region.py
 	• methods/crop_region.sh
 
-Input: 
-20190119_E1_DAPI_decon_0.5.nii.gz
-20190119_E1_mGFP_decon_0.5.nii.gz
-Output: 
-20190119_E1_DAPI_CardiacRegion_0.5.nii.gz
-20190119_E1_mGFP_CardiacRegion_0.5.nii.gz
+		Input: 
+		20190119_E1_DAPI_decon_0.5.nii.gz
+		20190119_E1_mGFP_decon_0.5.nii.gz
+		Output: 
+		20190119_E1_DAPI_CardiacRegion_0.5.nii.gz
+		20190119_E1_mGFP_CardiacRegion_0.5.nii.gz
 
 	2. Process membranes
 		a. Convert nii XYZ to h5 ZXY 
@@ -78,5 +79,4 @@ Output:
 			Input:
 			20190404_E1_mGFP_CardiacRegion_0.5_XYZ_predictions_GASP.nii.gz
 			Output:
-20190404_E1_mGFP_XYZ_predictions_GASP.nii.gz![image](https://user-images.githubusercontent.com/47607161/180723748-098a1554-8ac5-4537-8282-ca11756b85bb.png)
-
+			20190404_E1_mGFP_XYZ_predictions_GASP.nii.gz
