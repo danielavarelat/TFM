@@ -19,7 +19,7 @@ predictor:
   name: 'StandardPredictor'
 loaders:
   # save predictions to output_dir
-  output_dir: /homedtic/dvarela/RESULTS/membranes/PNAS
+  output_dir: /homedtic/dvarela/CROPS/
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
   batch_size: 1
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
@@ -29,12 +29,17 @@ loaders:
   # test loaders configuration
   test:
     file_paths:
-      - /homedtic/dvarela/CardiacRegion/20190119_E1/20190119_E1_mGFP_CardiacRegion_0.5_ZYX.h5
-      - /homedtic/dvarela/CardiacRegion/20190208_E2/20190208_E2_mGFP_CardiacRegion_0.5_ZYX.h5
-      - /homedtic/dvarela/CardiacRegion/20190401_E1/20190401_E1_mGFP_CardiacRegion_0.5_ZYX.h5
-      - /homedtic/dvarela/CardiacRegion/20190401_E2/20190401_E2_mGFP_CardiacRegion_0.5_ZYX.h5
-      - /homedtic/dvarela/CardiacRegion/20190404_E1/20190404_E1_mGFP_CardiacRegion_0.5_ZYX.h5
+      - /homedtic/dvarela/CardiacRegion/all/mem/20190209_E2_mGFP_CardiacRegion_0.5_ZXY.h5
+      - /homedtic/dvarela/CardiacRegion/all/mem/20190308_E3_mGFP_CardiacRegion_0.5_ZXY.h5
+      - /homedtic/dvarela/CardiacRegion/all/mem/20190503_E2_mGFP_CardiacRegion_0.5_ZXY.h5
+      - /homedtic/dvarela/CardiacRegion/all/mem/20190516_E3_mGFP_CardiacRegion_0.5_ZXY.h5
+      - /homedtic/dvarela/CardiacRegion/all/mem/20190521_E1_mGFP_CardiacRegion_0.5_ZXY.h5
+      - /homedtic/dvarela/CardiacRegion/all/mem/20190523_E1_mGFP_CardiacRegion_0.5_ZXY.h5
+      - /homedtic/dvarela/CardiacRegion/all/mem/20190806_E3_mGFP_CardiacRegion_0.5_ZXY.h5
+      - /homedtic/dvarela/CardiacRegion/all/mem/20190806_E4_mGFP_CardiacRegion_0.5_ZXY.h5
+      - /homedtic/dvarela/CardiacRegion/all/mem/20190806_E6_mGFP_CardiacRegion_0.5_ZXY.h5
 
+      
     slice_builder:
       name: SliceBuilder
       patch_shape: [80, 170, 170]
