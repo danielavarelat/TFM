@@ -9,6 +9,7 @@ import time
 from skimage.measure import label, regionprops
 import nibabel as nib
 import os
+import json
 
 input_type = "data_float32"
 output_type = "labels"
@@ -142,52 +143,36 @@ def post_filtering_size(segmentation):
 
 
 if __name__ == "__main__":
-    especimens = [
-        "20190119_E1",
-        "20190208_E2",
-        "20190401_E1",
-        # "20190404_E1",
-        "20190401_E2",
+    f = open("/homedtic/dvarela/specimens.json")
+    data = json.load(f)
+    flatten_list = [
+        element
+        for sublist in [data[i] for i in ["stage1", "stage2", "stage3", "stage4"]]
+        for element in sublist
     ]
-
-    files = [
-        os.path.join(
-            "/homedtic/dvarela/RESULTS/membranes/PNAS",
-            e + "_mGFP_CardiacRegion_0.5_ZYX_predictions.h5",
+    mems = "/homedtic/dvarela/RESULTS/membranes/PNAS"
+    gasp = "/homedtic/dvarela/RESULTS/membranes/GASP_PNAS"
+    for sp in flatten_list:
+        file_h5 = os.path.join(
+            mems, f"2019{sp}_mGFP_CardiacRegion_0.5_ZXY_predictions.h5"
         )
-        for e in especimens
-    ]
-    for file_h5 in files:
-        print(file_h5)
+        print(f"RUNNING {file_h5}")
         outfile = os.path.join(
-            "/homedtic/dvarela/RESULTS/membranes/GASP_PNAS",
-            os.path.basename(file_h5).replace(".h5", "_GASP.nii.gz"),
+            gasp,
+            os.path.basename(file_h5)
+            .replace(".h5", "_GASP.nii.gz")
+            .replace("ZXY", "XYZ"),
         )
         print(outfile)
         seg = main(file_h5)
         seg_post = post_filtering_size(seg)
+        seg_postXYZ = np.swapaxes(np.swapaxes(seg_post, 0, 2), 1, 0)
         ni_img = nib.Nifti1Image(
-            seg_post.astype("uint16"),
+            seg_postXYZ.astype("uint16"),
             affine=np.eye(4),
         )
         nib.save(
             ni_img,
             outfile,
         )
-
-    # PROB = "/homedtic/dvarela/RESULTS/membranes/PNAS/20190404_E1_mGFP_CardiacRegion_0.5_ZYX_predictions.h5"
-    # outfile = "/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/20190404_E1_mGFP_CardiacRegion_0.5_ZYX_predictions_GASP.nii.gz"
-
-    # seg = main(PROB)
-    # seg_post = post_filtering_size(seg)
-    # ## save as nii.qz
-
-    # ni_img = nib.Nifti1Image(
-    #     seg_post.astype("uint16"),
-    #     affine=np.eye(4),
-    # )
-    # nib.save(
-    #     ni_img,
-    #     outfile,
-    # )
-    # print(outfile)
+        print("---------------")
