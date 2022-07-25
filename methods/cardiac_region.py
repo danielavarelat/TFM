@@ -7,6 +7,37 @@ sys.path.insert(1, "/homedtic/dvarela")
 import util_daniela as u
 
 
+def saveNifti(array_3D, array_dim_info, save_path, vox_units="um"):
+    units_dict = {"um": 3, "mm": 2, "m": 1, "pixel": 0}
+    tipo = array_3D.dtype.name
+    if "uint" in tipo:
+        bit_depth = 2 ** int(array_3D.dtype.name.split("uint")[1]) - 1
+    elif "uint" in tipo:
+        bit_depth = 255
+    img = nib.Nifti1Image(array_3D, np.eye(4))
+    # Se especifican unidades, dimensiones y tamano de pixel
+    Dimensions = np.asarray(
+        [
+            1.0,
+            array_dim_info["x_res"],
+            array_dim_info["y_res"],
+            array_dim_info["z_res"],
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+        ],
+        dtype="float32",
+    )
+    img.header["pixdim"] = Dimensions
+    img.header["xyzt_units"] = units_dict[vox_units]
+
+    if "uint" in tipo:
+        img.header["cal_max"] = bit_depth
+    # Se guarda
+    nib.save(img, save_path)
+
+
 def load3D_metadata(path):
     """Path to file XYZ oriented."""
     # Dictionary with information from the image
@@ -115,28 +146,61 @@ def crop_embryo(margenesXYZ, deconxyz_path):
 
 if __name__ == "__main__":
     folder_lines = "/homedtic/dvarela/LINES"
-    # folder_decon05 = "/homedtic/dvarela/DECON_05/MGFP"
-    folder_decon05 = "/homedtic/dvarela/DECON_05/DAPI"
-    especimens = [
-        "20190119_E1",
-        "20190208_E2",
-        "20190401_E1",
-        "20190404_E1",
-    ]
-    for e in especimens:
-        print(e)
-        line = os.path.join(folder_lines, "line_" + e + ".nii.gz")
-        # deconxyz_path = os.path.join(folder_decon05, e + "_mGFP_decon_0.5.nii.gz")
-        deconxyz_path = os.path.join(folder_decon05, e + "_DAPI_decon_0.5.nii.gz")
-        cardiac_region_folder = os.path.join("/homedtic/dvarela/CardiacRegion", e)
-        margenesXYZ = crop_line(line, deconxyz_path, escala2048=False, ma=5)
-        # deconxyz_path_nuclei = "/homedtic/dvarela/dataT/20190401_E2_DAPI_decon_0.5.nii.gz"
-        crop_n = crop_embryo(margenesXYZ, deconxyz_path)
+    folder_decon05_mem = "/homedtic/dvarela/DECON_05/MGFP/mem"
+    folder_decon05_nu = "/homedtic/dvarela/DECON_05/DAPI/nu"
+    # especimens = [
+    #     "20190504_E1",
+    #     "20190404_E2",
+    #     "20190520_E4",
+    #     "20190516_E3",
+    #     "20190806_E3",
+    #     "20190520_E2",
+    #     "20190401_E3",
+    #     "20190517_E1",
+    #     "20190520_E1",
+    #     '20190401_E1',
+    # ]
+    especimens = [i.split("_m")[0] for i in os.listdir(folder_decon05_mem)]
+
+    for i, e in enumerate(especimens):
+        print(f"Specimen {i} --> {e}")
+        linefile = os.path.join(folder_lines, "line_" + e + ".nii.gz")
+        deconxyz_path_mGFP = os.path.join(
+            folder_decon05_mem, e + "_mGFP_decon_0.5.nii.gz"
+        )
+        deconxyz_path_DAPI = os.path.join(
+            folder_decon05_nu, e + "_DAPI_decon_0.5.nii.gz"
+        )
+
+        margenesXYZ = crop_line(linefile, deconxyz_path_DAPI, escala2048=False, ma=5)
+
+        crop_n = crop_embryo(margenesXYZ, deconxyz_path_DAPI)
+        crop_m = crop_embryo(margenesXYZ, deconxyz_path_mGFP)
+        crop_l = crop_embryo(margenesXYZ, linefile)
+
+        lines_cc_folder = "/homedtic/dvarela/LINES/CC"
+        cardiac_region_folder_nu = "/homedtic/dvarela/CardiacRegion/all/nu"
+        cardiac_region_folder_mem = "/homedtic/dvarela/CardiacRegion/all/mem"
+        # if not os.path.isdir(cardiac_region_folder):
+        #     try:
+        #         os.mkdir(cardiac_region_folder)
+        #     except OSError:
+        #         print("Creation of the directory %s failed" % cardiac_region_folder)
+
         u.save_nii(
             crop_n,
-            os.path.join(cardiac_region_folder, e + "_DAPI_CardiacRegion_0.5.nii.gz"),
+            os.path.join(
+                cardiac_region_folder_nu, e + "_DAPI_CardiacRegion_0.5.nii.gz"
+            ),
         )
-        print("-------")
-        # u.save_nii(
-        #     crop_m, "/homedtic/dvarela/dataT/20190401_E2_mGFP_CardiacRegion_0.5.nii.gz"
-        # )
+        u.save_nii(
+            crop_m,
+            os.path.join(
+                cardiac_region_folder_mem, e + "_mGFP_CardiacRegion_0.5.nii.gz"
+            ),
+        )
+        u.save_nii(
+            crop_l,
+            os.path.join(lines_cc_folder, f"line_{e}_CC.nii.gz"),
+        )
+        print("-------------------")
