@@ -74,9 +74,8 @@ data = json.load(f)
 FOLDERS = [
     element
     for sublist in [
-        [f"{i[-1]}_2019" + e for e in data[i]]
-        for i in ["stage1", "stage2", "stage3", "stage4"]
-    ]
+        [f"{i[-1]}_2019" + e for e in data[i]] for i in ["stage4"]
+    ]  # "stage1", "stage2", "stage3"
     for element in sublist
 ]
 if __name__ == "__main__":
@@ -90,70 +89,23 @@ if __name__ == "__main__":
         # file_out = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPLmesh_lines.pkl"
 
         # CLUSTER
-        gasp = f"/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
+        gasp_mem = f"/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
         FILE = f"/homedtic/dvarela/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
-        file_out = f"/homedtic/dvarela/EXTRACTION/features/list_meshes/{ESPECIMEN}_MYO_lines_corr.pkl"
-        line_mesh = f"/homedtic/dvarela/lines_ply_myo/line_{ESPECIMEN}_myo_10000.ply"
+        file_out = f"/homedtic/dvarela/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl"
+        line_mesh = f"/homedtic/dvarela/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
         # line_mesh = f"/homedtic/dvarela/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
         if os.path.isfile(line_mesh):
             print(f"Sí existe --> {line_mesh}")
-            df_clean = pd.read_csv(FILE)
-            print(f"Features shape {df_clean.shape}")
-            # df_clean = df_clean[df_clean.lines == 5]
-            # print(f"Features SPLACHN {df_clean.shape}")
-            pred_mem = nib.load(gasp).get_fdata()
+            df = pd.read_csv(FILE)
+            print(f"Features shape {df.shape}")
+            pred_mem = nib.load(gasp_mem).get_fdata()
+            dim_info = cR.load3D_metadata(gasp_mem)
+
             print(f"Segmentation shape {pred_mem.shape}")
             props = ps.metrics.regionprops_3D(morphology.label(pred_mem))
-            print(f"LEN PROPS {len(props)}")
-
-            ### extraer cells que entrarán
-            dim_info = cR.load3D_metadata(gasp)
-            mesh = trimesh.load_mesh(line_mesh, process=False)
-            final_number_faces = 18000
-            mesh = mesh.simplify_quadratic_decimation(int(final_number_faces))
-            vertices_location = np.floor(
-                mesh.vertices
-                / [dim_info["x_res"], dim_info["y_res"], dim_info["z_res"]]
-            ).astype("uint16")
-            vertices_location = np.array(
-                [
-                    v
-                    for v in vertices_location
-                    if (
-                        v[0] < dim_info["x_size"]
-                        and v[1] < dim_info["y_size"]
-                        and v[2] < dim_info["z_size"]
-                    )
-                ]
-            )
-
-            vertices_labels = pred_mem[
-                vertices_location[:, 0],
-                vertices_location[:, 1],
-                vertices_location[:, 2],
-            ]
-            indices_lines5 = list(df_clean[df_clean.lines == 1].cell_in_props.values)
-            # print(f"Shape lines 5 --> {df_clean[df_clean.lines == 5].shape}")
-            print(f"Shape lines 1 --> {df_clean[df_clean.lines == 1 ].shape}")
-            indices_vertices_surface = list(
-                df_clean[
-                    df_clean.original_labels.isin(vertices_labels)
-                ].cell_in_props.values
-            )
-            print(
-                f"Shape vertices --> {df_clean[df_clean.original_labels.isin(vertices_labels)].shape}"
-            )
-            indices_props = list(set(indices_vertices_surface) | set(indices_lines5))
-            print(f"Final number of cells {len(indices_props)}")
-            ### -----------------
-            # df_clean = df_clean[df_clean.cell_in_props.isin(indices_props)]
-            ### -----------------
-            # dict_label_cell = dict(
-            #     zip(
-            #         list(df_clean.original_labels),
-            #         list(df_clean.cell_in_props),
-            #     )
-            # )
+            df = df[df.spl == 1]
+            indices_props = list(df.cell_in_props.values)
+            print(f"Numero cells - a partir de DF {len(indices_props)}")
             disk_size = 3
             meshes = []
             runtime = time.time()
@@ -193,12 +145,13 @@ if __name__ == "__main__":
 
             runtime = time.time() - runtime
             print(f"Meshing took {runtime:.2f} s")
+            print(f"number elements {len(meshes)}")
             print(file_out)
             with open(file_out, "wb") as f:
                 pickle.dump(meshes, f)
             print("-------------")
         else:
             print(f"NOT FOUND --> {line_mesh}")
-    print(dict_bads)
-    with open("pickles2.json", "w") as outfile:
-        json.dump(dict_bads, outfile)
+        print(dict_bads)
+        with open(f"pickles_{ESPECIMEN}.json", "w") as outfile:
+            json.dump(dict_bads, outfile)
