@@ -90,15 +90,16 @@ if __name__ == "__main__":
         FILE = "/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/20190516_E3_cell_properties_radiomics.csv"
         file_out = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl"
         line_mesh = f"/Users/dvarelat/Documents/MASTER/TFM/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
+        bad_json = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/pickles_{ESPECIMEN}.json"
+        
         # CLUSTER
         # gasp_mem = f"/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
         # FILE = f"/homedtic/dvarela/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
         # file_out = f"/homedtic/dvarela/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl"
         # line_mesh = f"/homedtic/dvarela/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
         # line_mesh = f"/homedtic/dvarela/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
-        
-        
-        #### -------------------------------------- 
+
+        #### --------------------------------------
         if os.path.isfile(line_mesh):
             print(f"Sí existe --> {line_mesh}")
             df = pd.read_csv(FILE)
@@ -158,5 +159,5 @@ if __name__ == "__main__":
         else:
             print(f"NOT FOUND --> {line_mesh}")
         print(dict_bads)
-        with open(f"pickles_{ESPECIMEN}.json", "w") as outfile:
+        with open(bad_json, "w") as outfile:
             json.dump(dict_bads, outfile)
