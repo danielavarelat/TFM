@@ -116,7 +116,7 @@ This script does not include the nuclei information, that is in: [df_features.py
 		       
 ### 1.1 Add Right/Left category 
 
-Add new column "RL" using the landmarks json file. 
+Add new column "RL" using the landmarks json file. [RL.py](https://github.com/danielavarelat/TFM/blob/master/methods/extraction/RL.py)
 
 	INPUT
 		DFFILE = DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv
