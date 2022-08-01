@@ -114,6 +114,17 @@ This script does not include the nuclei information, that is in: [df_features.py
 		       'Maximum2DDiameterRow','Maximum2DDiameterSlice', 'Maximum3DDiameter', 'MeshVolume',
 		       'MinorAxisLength', 'Sphericity', 'SurfaceArea', 'SurfaceVolumeRatio', 'VoxelVolume'
 		       
+### 1.1 Add Right/Left category 
+
+Add new column "RL" using the landmarks json file. 
+
+	INPUT
+		DFFILE = DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv
+		midplane = midplanes/{ESPECIMEN}_midplane.ply
+		land_json = landmarks/{ESPECIMEN}_key_points.json
+	OUTPUT
+		DFFILE = DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv
+		
 		       
 ## 2. Classify (Myo and Spl)
 
@@ -136,8 +147,9 @@ Although in column "lines" the different tissues are categorized, new column "my
 
 Based on "myo" and "spl" columns, separately. 
 
+[mesh3d_from_df.py](https://github.com/danielavarelat/TFM/blob/master/methods/extraction/mesh3d_from_df.py)
+
 	INPUT (Example for splanchnic)
-	
 		DFFILE = DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv
 		gasp_mem = DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz
         	line_mesh = lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply
@@ -148,13 +160,11 @@ Based on "myo" and "spl" columns, separately.
 
 Results are stored as a list of meshes in a pickle. Additionally, the index of cells that were not able to create meshes are stored in a json. 
 
-	### 3.1 Remove bad cells (not having mesh)
-	
-	Cells indices that are in the json file are marked as 0 instead of 1 from the "spl" column (or "myo"). 
-	This is done to keep using those columns as guide for the list of meshes and further applications. 
-	
-## 4. Calculate orientation and other features from single meshes
-	
+### 3.1 Remove bad cells (not having mesh)
+
+Cells indices that are in the json file are marked as 0 instead of 1 from the "spl" column (or "myo").  
+This is done to keep using those columns as guide for the list of meshes and further applications. 
+		
 This is not included in any script. Code:
 	
       f = open(".../DATA/EXTRACTION/features/list_meshes/pickles_spl.json")
@@ -170,6 +180,24 @@ This is not included in any script. Code:
           df["spl"] = df.apply(lambda x: 0 if x["cell_in_props"] in v else x["spl"], axis=1)
           print(df[df.spl == 1].shape)
           df.to_csv(DFFILE, index=False, header=True)
+
+## 4. Calculate orientation and elongation from single meshes
+	
+Differnt from the other features, these are calculated from the list of meshes. 
+
+[angles.py](https://github.com/danielavarelat/TFM/blob/master/methods/extraction/angles.py)
+
+	INPUT 
+		DFFILE = DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv
+		gasp_mem = DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz
+        	line_mesh = lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply
+		pickle_spl = DATA/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl
+	
+	OUTPUT
+		OUTFILE = DATA/EXTRACTION/features/orientation/{ESPECIMEN}_angles_spl.csv
+		
+		Columns: 'cell_in_props', 'closest_vert', 'angles', 'Elongation2'. 
+		
 
 
 
