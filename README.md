@@ -92,16 +92,26 @@ INPUTS:
 			
 # FEATURES EXTRACTION
 
-	df_features + radiomics
-	[df_features_radiomics.py](https://github.com/danielavarelat/TFM/blob/master/methods/extraction/df_features_radiomics.py)
-	
+## 1. df_features + radiomics
 
-	INPUT
-		FILE = {ESPECIMEN}_cell_properties_radiomics.csv
+[df_features_radiomics.py](https://github.com/danielavarelat/TFM/blob/master/methods/extraction/df_features_radiomics.py)
+
+This script does not include the nuclei information, that is in: [df_features.py](https://github.com/danielavarelat/TFM/blob/master/methods/extraction/df_features.py)
+
+	*INPUT*
 		linefile = DATA/LINES/line_{ESPECIMEN}.nii.gz
 		gasp_mem = DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz
 		mem = DATA/DECON_05/{ESPECIMEN}_mGFP_decon_0.5.nii.gz
 	
-	
-	OUTPUT
+	*OUTPUT*
+		FILE = {ESPECIMEN}_cell_properties_radiomics.csv
+		
+		Columns: 'cell_in_props', 'volumes', 'sphericities', 'original_labels',
+		       'centroids', 'lines', 'axis_major_length', 'axis_minor_length',
+		       'solidity','Elongation','Flatness', 'LeastAxisLength', 'MajorAxisLength','Maximum2DDiameterColumn', 
+		       'Maximum2DDiameterRow','Maximum2DDiameterSlice', 'Maximum3DDiameter', 'MeshVolume',
+		       'MinorAxisLength', 'Sphericity', 'SurfaceArea', 'SurfaceVolumeRatio', 'VoxelVolume'
+		       
+		       
+		    
 
