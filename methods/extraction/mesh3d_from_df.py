@@ -23,8 +23,8 @@ import importlib
 import json
 import os
 
-# sys.path.insert(1, "/Users/dvarelat/Documents/MASTER/TFM/methods")
-sys.path.insert(1, "/homedtic/dvarela")
+sys.path.insert(1, "/Users/dvarelat/Documents/MASTER/TFM/methods")
+# sys.path.insert(1, "/homedtic/dvarela")
 
 import cardiac_region
 
@@ -68,7 +68,9 @@ def Median3D_Array(NumpyArray, disk_size):
     return NumpyArray
 
 
-f = open("/homedtic/dvarela/specimens.json")
+# f = open("/homedtic/dvarela/specimens.json")
+f = open("/Users/dvarelat/Documents/MASTER/TFM/methods/specimens.json")
+
 data = json.load(f)
 
 FOLDERS = [
@@ -80,20 +82,23 @@ FOLDERS = [
 ]
 if __name__ == "__main__":
     dict_bads = {}
-    for folder in FOLDERS:
+    for folder in ["3_20190516_E3"]:
         ESPECIMEN = folder.split("_")[1] + "_" + folder.split("_")[2]
         print(ESPECIMEN)
-        ##LOCAL
-        # gasp = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
-        # FILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/{folder}/{ESPECIMEN}_cell_properties_radiomics.csv"
-        # file_out = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPLmesh_lines.pkl"
-
+        ######### INPUTS ----------------------------------------------------------------------------
+        gasp_mem = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
+        FILE = "/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/20190516_E3_cell_properties_radiomics.csv"
+        file_out = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl"
+        line_mesh = f"/Users/dvarelat/Documents/MASTER/TFM/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
         # CLUSTER
-        gasp_mem = f"/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
-        FILE = f"/homedtic/dvarela/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
-        file_out = f"/homedtic/dvarela/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl"
-        line_mesh = f"/homedtic/dvarela/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
+        # gasp_mem = f"/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
+        # FILE = f"/homedtic/dvarela/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
+        # file_out = f"/homedtic/dvarela/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl"
         # line_mesh = f"/homedtic/dvarela/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
+        # line_mesh = f"/homedtic/dvarela/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
+        
+        
+        #### -------------------------------------- 
         if os.path.isfile(line_mesh):
             print(f"Sí existe --> {line_mesh}")
             df = pd.read_csv(FILE)
@@ -145,7 +150,7 @@ if __name__ == "__main__":
 
             runtime = time.time() - runtime
             print(f"Meshing took {runtime:.2f} s")
-            print(f"number elements {len(meshes)}")
+            print(f"Number elements {len(meshes)}")
             print(file_out)
             with open(file_out, "wb") as f:
                 pickle.dump(meshes, f)
