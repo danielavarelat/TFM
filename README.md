@@ -86,3 +86,22 @@ INPUTS:
 			20190404_E1_mGFP_CardiacRegion_0.5_XYZ_predictions_GASP.nii.gz
 			Output:
 			20190404_E1_mGFP_XYZ_predictions_GASP.nii.gz
+			
+			
+			
+			
+# FEATURES EXTRACTION
+
+	df_features + radiomics
+	[df_features_radiomics.py](!https://github.com/danielavarelat/TFM/blob/master/methods/extraction/df_features_radiomics.py)
+	
+
+	INPUT
+		FILE = {ESPECIMEN}_cell_properties_radiomics.csv
+		linefile = DATA/LINES/line_{ESPECIMEN}.nii.gz
+		gasp_mem = DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz
+		mem = DATA/DECON_05/{ESPECIMEN}_mGFP_decon_0.5.nii.gz
+	
+	
+	OUTPUT
+
