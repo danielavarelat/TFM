@@ -161,14 +161,15 @@ This is not included in any script. Code:
       d_spl = json.load(f)
       d_spl
       {'20190806_E5': [], '20190516_E3': [10831], '20190523_E1': [], '20190806_E4': [], '20190806_E6': []}
+      
       for k,v in d_spl.items(): 
       if v:
-	print(k)
-	DFFILE = f"DATA/EXTRACTION/features/{k}_cell_properties_radiomics.csv"
-	df = pd.read_csv(DFFILE)
-	df["spl"] = df.apply(lambda x: 0 if x["cell_in_props"] in v else x["spl"], axis=1)
-	print(df[df.spl == 1].shape)
-	df.to_csv(DFFILE, index=False, header=True)
+          print(k)
+          DFFILE = f"DATA/EXTRACTION/features/{k}_cell_properties_radiomics.csv"
+          df = pd.read_csv(DFFILE)
+          df["spl"] = df.apply(lambda x: 0 if x["cell_in_props"] in v else x["spl"], axis=1)
+          print(df[df.spl == 1].shape)
+          df.to_csv(DFFILE, index=False, header=True)
 
 
 
