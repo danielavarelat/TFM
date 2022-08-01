@@ -114,6 +114,17 @@ This script does not include the nuclei information, that is in: [df_features.py
 		       'Maximum2DDiameterRow','Maximum2DDiameterSlice', 'Maximum3DDiameter', 'MeshVolume',
 		       'MinorAxisLength', 'Sphericity', 'SurfaceArea', 'SurfaceVolumeRatio', 'VoxelVolume'
 		       
+### 1.1 Add Right/Left category 
+
+Add new column "RL" using the landmarks json file. 
+
+	INPUT
+		DFFILE = DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv
+		midplane = midplanes/{ESPECIMEN}_midplane.ply
+		land_json = landmarks/{ESPECIMEN}_key_points.json
+	OUTPUT
+		DFFILE = DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv
+		
 		       
 ## 2. Classify (Myo and Spl)
 
