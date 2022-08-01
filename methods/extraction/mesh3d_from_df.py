@@ -90,8 +90,8 @@ if __name__ == "__main__":
         FILE = "/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/20190516_E3_cell_properties_radiomics.csv"
         file_out = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl"
         line_mesh = f"/Users/dvarelat/Documents/MASTER/TFM/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
-        bad_json = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/pickles_{ESPECIMEN}.json"
-        
+        bad_json = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/pickles_spl_{ESPECIMEN}.json"
+
         # CLUSTER
         # gasp_mem = f"/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
         # FILE = f"/homedtic/dvarela/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
