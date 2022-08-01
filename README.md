@@ -92,19 +92,21 @@ INPUTS:
 			
 # FEATURES EXTRACTION
 
-## 1. df_features + radiomics
+## 1. Features + radiomics
+
+First features are extracted from the segmentation mask, the rest come from pyradiomics package.
 
 [df_features_radiomics.py](https://github.com/danielavarelat/TFM/blob/master/methods/extraction/df_features_radiomics.py)
 
 This script does not include the nuclei information, that is in: [df_features.py](https://github.com/danielavarelat/TFM/blob/master/methods/extraction/df_features.py)
 
-	*INPUT*
+	INPUT
 		linefile = DATA/LINES/line_{ESPECIMEN}.nii.gz
 		gasp_mem = DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz
 		mem = DATA/DECON_05/{ESPECIMEN}_mGFP_decon_0.5.nii.gz
 	
-	*OUTPUT*
-		FILE = {ESPECIMEN}_cell_properties_radiomics.csv
+	OUTPUT
+		DFFILE = {ESPECIMEN}_cell_properties_radiomics.csv
 		
 		Columns: 'cell_in_props', 'volumes', 'sphericities', 'original_labels',
 		       'centroids', 'lines', 'axis_major_length', 'axis_minor_length',
@@ -113,5 +115,64 @@ This script does not include the nuclei information, that is in: [df_features.py
 		       'MinorAxisLength', 'Sphericity', 'SurfaceArea', 'SurfaceVolumeRatio', 'VoxelVolume'
 		       
 		       
-		    
+## 2. Classify (Myo and Spl)
+
+Although in column "lines" the different tissues are categorized, new column "myo" and "spl" are added as a more sophisticated classification based on lines but also in the 3D volumetric mesh. 
+
+[myo_spl.py](https://github.com/danielavarelat/TFM/blob/master/methods/extraction/myo_spl.py)
+
+	INPUT
+		DFFILE = DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv
+		linefile = DATA/LINES/line_{ESPECIMEN}.nii.gz
+		gasp_mem = DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz
+		mesh_myo = lines_ply_myo/line_{ESPECIMEN}_myo_10000.ply
+        	mesh_spl = lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply
+
+	OUTPUT
+		DFFILE = DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv
+	    
+	   
+## 3. Create meshes from every cell
+
+Based on "myo" and "spl" columns, separately. 
+
+	INPUT (Example for splanchnic)
+	
+		DFFILE = DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv
+		gasp_mem = DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz
+        	line_mesh = lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply
+		bad_json = DATA/EXTRACTION/features/list_meshes/pickles_spl_{ESPECIMEN}.json
+	
+	OUTPUT
+		file_out = DATA/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl
+
+Results are stored as a list of meshes in a pickle. Additionally, the index of cells that were not able to create meshes are stored in a json. 
+
+	### 3.1 Remove bad cells (not having mesh)
+	
+	Cells indices that are in the json file are marked as 0 instead of 1 from the "spl" column (or "myo"). 
+	This is done to keep using those columns as guide for the list of meshes and further applications. 
+	
+## 4. Calculate orientation and other features from single meshes
+	
+This is not included in any script. Code:
+	
+      f = open(".../DATA/EXTRACTION/features/list_meshes/pickles_spl.json")
+      d_spl = json.load(f)
+      d_spl
+      {'20190806_E5': [], '20190516_E3': [10831], '20190523_E1': [], '20190806_E4': [], '20190806_E6': []}
+      
+      for k,v in d_spl.items(): 
+      if v:
+          print(k)
+          DFFILE = f"DATA/EXTRACTION/features/{k}_cell_properties_radiomics.csv"
+          df = pd.read_csv(DFFILE)
+          df["spl"] = df.apply(lambda x: 0 if x["cell_in_props"] in v else x["spl"], axis=1)
+          print(df[df.spl == 1].shape)
+          df.to_csv(DFFILE, index=False, header=True)
+
+
+
+
+
 
