@@ -93,7 +93,7 @@ INPUTS:
 # FEATURES EXTRACTION
 
 	df_features + radiomics
-	[df_features_radiomics.py](!https://github.com/danielavarelat/TFM/blob/master/methods/extraction/df_features_radiomics.py)
+	[df_features_radiomics.py](https://github.com/danielavarelat/TFM/blob/master/methods/extraction/df_features_radiomics.py)
 	
 
 	INPUT
