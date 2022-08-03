@@ -198,9 +198,19 @@ Differnt from the other features, these are calculated from the list of meshes.
 		
 		Columns: 'cell_in_props', 'closest_vert', 'angles', 'Elongation2'. 
 		
+## 5. Color cells by feature
 
+(pickle_to_3d.py)[https://github.com/danielavarelat/TFM/blob/master/methods/extraction/pickle_to_3d.py]
 
+The input csv doesn't have to be the one with all features, it could be any dataframe in which each rows corresponds to one cell in the list of meshes. And that has a column with the varible to use as color. 
 
+	INPUT 
+		mesh_list = DATA/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl
+		DFFILE = DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv
+	OUTPUT
+		OUTFILE = DATA/EXTRACTION/features/meshes/SPLcells_{ESPECIMEN}_{variable}.ply
+
+		        
 
 
 
