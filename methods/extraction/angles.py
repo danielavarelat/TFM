@@ -13,9 +13,8 @@ from numpy import dot
 from skimage import morphology
 import json
 
-# sys.path.insert(1, "/Users/dvarelat/Documents/MASTER/TFM/methods")
-sys.path.insert(1, "/homedtic/dvarela")
-
+sys.path.insert(1, "/Users/dvarelat/Documents/MASTER/TFM/methods")
+# sys.path.insert(1, "/homedtic/dvarela")
 import cardiac_region
 
 importlib.reload(cardiac_region)
@@ -30,43 +29,49 @@ def get_mainaxis(mesh):
 
 
 def calculate_elongation(mesh):
+    """Igual a como se calcula en pyradiomics"""
     cov = np.cov(mesh.vertices.T)
     eigenvalues, eigenvectors = np.linalg.eig(cov)
     idx = eigenvalues.argsort()[::-1]
     eigenValues = eigenvalues[idx]
-    return np.sqrt(eigenValues[1] / eigenValues[0])
+    return np.sqrt(eigenValues[1] / eigenValues[0])  ## minor/major
 
 
-f = open("/homedtic/dvarela/specimens.json")
-data = json.load(f)
+# f = open("/Users/dvarelat/Documents/MASTER/TFM/methods/specimens.json")
+# # f = open("/homedtic/dvarela/specimens.json")
+# data = json.load(f)
 
-FOLDERS = [
-    element
-    for sublist in [
-        [f"{i[-1]}_2019" + e for e in data[i]]
-        for i in ["stage1", "stage2", "stage3", "stage4"]
-    ]
-    for element in sublist
-]
+# FOLDERS = [
+#     element
+#     for sublist in [
+#         [f"{i[-1]}_2019" + e for e in data[i]]
+#         for i in ["stage1", "stage2", "stage3", "stage4"]
+#     ]
+#     for element in sublist
+# ]
 
 if __name__ == "__main__":
-
-    for folder in FOLDERS:
-        ESPECIMEN = folder.split("_")[1] + "_" + folder.split("_")[2]
-        print(folder)
+    # f = open("/homedtic/dvarela/specimens.json")
+    # data = json.load(f)
+    # flatten_list = [
+    #     element for sublist in [data[i] for i in ["stage6"]] for element in sublist
+    # ]
+    flatten_list = ["0401_E2"]
+    for e in flatten_list:
+        ESPECIMEN = f"2019{e}"
+        print(ESPECIMEN)
         ######### INPUTS ----------------------------------------------------------------------------
-        # pickle_spl = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl"
-        # DFFILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
-        # line_mesh = f"/Users/dvarelat/Documents/MASTER/TFM/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
-        # gasp_mem = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
-        # OUTFILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/orientation/{ESPECIMEN}_angles_spl.csv"
-
+        pickle_spl = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/{ESPECIMEN}_MYO_lines_corr.pkl"
+        DFFILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
+        line_mesh = f"/Users/dvarelat/Documents/MASTER/TFM/lines_ply_myo/line_{ESPECIMEN}_myo_10000.ply"
+        gasp_mem = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
+        OUTFILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/orientation/{ESPECIMEN}_angles_myo.csv"
         # cluster
-        pickle_spl = f"/homedtic/dvarela/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl"
-        gasp_mem = f"/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
-        DFFILE = f"/homedtic/dvarela/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
-        line_mesh = f"/homedtic/dvarela/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
-        OUTFILE = f"/homedtic/dvarela/EXTRACTION/features/orientation/{ESPECIMEN}_angles_spl.csv"
+        # pickle_spl = f"/homedtic/dvarela/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl"
+        # gasp_mem = f"/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
+        # DFFILE = f"/homedtic/dvarela/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
+        # line_mesh = f"/homedtic/dvarela/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
+        # OUTFILE = f"/homedtic/dvarela/EXTRACTION/features/orientation/{ESPECIMEN}_angles_spl.csv"
 
         #### --------------------------------------
         mesh = trimesh.load_mesh(line_mesh, process=False)
@@ -78,10 +83,8 @@ if __name__ == "__main__":
         with open(pickle_spl, "rb") as f:
             readMESHES = pickle.load(f)
 
-        # SPLANCHNIC
-        df = df[df.spl == 1]
-        # MYO
-        # df = df[df.myo == 1]
+        # SPLANCHNIC or MYO
+        df = df[df.myo == 1]
         if len(readMESHES) == df.shape[0]:
             print(f"MISMO SIZE {len(readMESHES)}")
             pred_mem = nib.load(gasp_mem).get_fdata()
@@ -108,7 +111,8 @@ if __name__ == "__main__":
                 ]
             )
             for i, p in enumerate(props_set):
-                print("Calculating closest vertex...")
+                print(i)
+                # print("Calculating closest vertex...")
                 distances_to_my_centr = [
                     np.linalg.norm(np.array(np.array(v)) - np.array(p.centroid))
                     for v in vertices_location
@@ -120,7 +124,6 @@ if __name__ == "__main__":
             DF_ANGLES = pd.DataFrame()
             DF_ANGLES["cell_in_props"] = indices_props
             DF_ANGLES["closest_vert"] = index_vertice
-
             angles = []
             for i, normal in enumerate(v_normals[index_vertice]):
                 angles.append(abs(dot(normal, mains[i])))
@@ -131,3 +134,4 @@ if __name__ == "__main__":
         else:
             print("DIFF TAMAÑO")
         print("--------------------------")
+            

@@ -65,17 +65,12 @@ def merge(parts, concatenate_colors=True):
 
 if __name__ == "__main__":
 
-    f = open("/Users/dvarelat/Documents/MASTER/TFM/methods/specimens.json")
-    data = json.load(f)
-
-    FOLDERS = [
-        element
-        for sublist in [
-            [f"{i[-1]}_2019" + e for e in data[i]]
-            for i in ["stage1", "stage2", "stage3", "stage4"]
-        ]
-        for element in sublist
-    ]
+    # f = open("/Users/dvarelat/Documents/MASTER/TFM/methods/specimens.json")
+    # data = json.load(f)
+    # flatten_list = [
+    #     element for sublist in [data[i] for i in ["stage6"]] for element in sublist
+    # ]
+    flatten_list = ["0806_E3", "0401_E3", "0401_E1"]
 
     variables = [
         # "lines",
@@ -84,42 +79,45 @@ if __name__ == "__main__":
         # "eccentricity3d",
         # "volumes",
         # "solidity",
-        "Elongation",
-        "Sphericity",
-        "MeshVolume",
+        # "Elongation",
+        # "Sphericity",
+        # "MeshVolume",
         # "Flatness",
         # "division"
-        # "abs_angle"
+        "columnarity",
+        "Elongation2",
+        "angles",
     ]
-    for folder in FOLDERS:
-        ESPECIMEN = folder.split("_")[1] + "_" + folder.split("_")[2]
-        print(folder)
-
-        FILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl"
-        DFFILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
-
-        with open(FILE, "rb") as f:
+    for e in flatten_list:
+        ESPECIMEN = f"2019{e}"
+        print(ESPECIMEN)
+        spl_list = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/{ESPECIMEN}_MYO_lines_corr_filter.pkl"
+        # DFFILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
+        DFFILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/orientation/{ESPECIMEN}_angles_myo_filter.csv"
+        with open(spl_list, "rb") as f:
             readMESHES = pickle.load(f)
         list_bads = []
-        print(len(readMESHES))
+        print(f"List meshes --> {len(readMESHES)}")
         df = pd.read_csv(DFFILE)
+        # df = df[df.spl == 1]  # Si la entrada es radiomics
         print(df.shape)
-        df = df[df.spl == 1]
+        # print(df.columns)
         print(f"Features SPLACHN {df.shape}")
         if len(readMESHES) == df.shape[0]:
             for variable in variables:
                 print(variable)
                 # OUT_myo = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/orientation/SPLcells_{ESPECIMEN}_{variable}.ply"
-                OUT_spl = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/meshes/SPLcells_{ESPECIMEN}_{variable}.ply"
+                OUT_spl = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/meshes/MYOcells_{ESPECIMEN}_{variable}_filter.ply"
+                print(OUT_spl)
                 # df_angles = pd.read_csv(OUTFILE)
                 featRGB = feature_colorRGB(df, variable)
-                dict_label_rgb = dict(zip(df.original_labels, featRGB))
-                labels = list(df.original_labels)
+                # dict_label_rgb = dict(zip(df.original_labels, featRGB))
+                # labels = list(df.original_labels)
                 for j, color in enumerate(featRGB):
                     readMESHES[j].visual.vertex_colors = color
                 all_readMESHES = merge(readMESHES)
                 print(all_readMESHES)
                 all_readMESHES.export(OUT_spl)
         else:
-            print("no same size")
+            print("No same size --> correct based on json")
         print("----------------------")

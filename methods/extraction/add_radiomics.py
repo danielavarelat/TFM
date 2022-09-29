@@ -40,7 +40,7 @@ FOLDERS = [
         ]
         for element in sublist
     ]
-#FOLDERS = ["3_20190806_E3"]
+FOLDERS = ["3_20190516_E3"]
 for i, folder in enumerate(FOLDERS):
     print(folder)
     ESPECIMEN = folder.split("_")[1] + "_" + folder.split("_")[2]
@@ -52,56 +52,59 @@ for i, folder in enumerate(FOLDERS):
     linefile = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/CNIC/paraDaniela/lines/line_{ESPECIMEN}.nii.gz"
     gasp_mem = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
         
-    # MEM = nib.load(mem).get_fdata()
-    # MEM = MEM[:, :, :, 0]
-    #print(MEM.shape)
+    MEM = nib.load(mem).get_fdata()
+    MEM = MEM[:, :, :, 0]
+    print(MEM.shape)
     pred_mem = nib.load(gasp_mem).get_fdata()
     print(pred_mem.shape)
     df = pd.read_csv(FILE)
     print(df.shape)
-    # props_mem = ps.metrics.regionprops_3D(morphology.label(pred_mem))
-    # print(len(props_mem))
-    # results = []
-    # for cell in df.cell_in_props:
-    #     #print(cell)
-    #     img = np.swapaxes(np.swapaxes(MEM[props_mem[cell].slice], 0, 2), 1, 2)
-    #     m = np.swapaxes(np.swapaxes(props_mem[cell].mask, 0, 2), 1, 2)
-    #     spacing = [
-    #         float(cr.load3D_metadata(mem)["x_res"]),
-    #         float(cr.load3D_metadata(mem)["y_res"]),
-    #         float(cr.load3D_metadata(mem)["z_res"]),
-    #     ]
-    #     #print(spacing)
-    #     sitk_img = sitk.GetImageFromArray(img)
-    #     sitk_img = sitk.JoinSeries(sitk_img)[:, :, :, 0]
-    #     sitk_img.SetSpacing(spacing)
-    #     sitk_mask = sitk.GetImageFromArray(m.astype("uint16"))
-    #     sitk_mask = sitk.JoinSeries(sitk_mask)[:, :, :, 0]
-    #     sitk_mask.SetSpacing(spacing)
-    #     shapeFeatures = shape.RadiomicsShape(
-    #         sitk_img,
-    #         sitk_mask,
-    #     )
-    #     shapeFeatures.enableAllFeatures()
-    #     result = shapeFeatures.execute()
-    #     results.append(result)
-    # df = pd.concat([df, pd.DataFrame(results)], axis=1)
-    # print(df.shape)
+    print(df.head())
+    
+    props_mem = ps.metrics.regionprops_3D(morphology.label(pred_mem))
+    print(len(props_mem))
+    results = []
+    for cell in df.cell_in_props:
+        #print(cell)
+        img = np.swapaxes(np.swapaxes(MEM[props_mem[cell].slice], 0, 2), 1, 2)
+        m = np.swapaxes(np.swapaxes(props_mem[cell].mask, 0, 2), 1, 2)
+        spacing = [
+            float(cR.load3D_metadata(mem)["x_res"]),
+            float(cR.load3D_metadata(mem)["y_res"]),
+            float(cR.load3D_metadata(mem)["z_res"]),
+        ]
+        #print(spacing)
+        sitk_img = sitk.GetImageFromArray(img)
+        sitk_img = sitk.JoinSeries(sitk_img)[:, :, :, 0]
+        sitk_img.SetSpacing(spacing)
+        sitk_mask = sitk.GetImageFromArray(m.astype("uint16"))
+        sitk_mask = sitk.JoinSeries(sitk_mask)[:, :, :, 0]
+        sitk_mask.SetSpacing(spacing)
+        shapeFeatures = shape.RadiomicsShape(
+            sitk_img,
+            sitk_mask,
+        )
+        shapeFeatures.enableAllFeatures()
+        result = shapeFeatures.execute()
+        results.append(result)
+    df = pd.concat([df, pd.DataFrame(results)], axis=1)
+    print(df.shape)
+    print(df.head())
     
     # #### IMPROVE LINES
-    print("Improving lines---")
-    margenesXYZ = cR.crop_line(linefile, gasp_mem, escala2048=False, ma=1)
-    crop_m = cR.crop_embryo(margenesXYZ, gasp_mem)
+    # print("Improving lines---")
+    # margenesXYZ = cR.crop_line(linefile, gasp_mem, escala2048=False, ma=1)
+    # crop_m = cR.crop_embryo(margenesXYZ, gasp_mem)
 
-    im = np.ones(shape=pred_mem.shape)
-    im[
-            margenesXYZ[0][0] : margenesXYZ[1][0],
-            margenesXYZ[0][1] : margenesXYZ[1][1],
-            margenesXYZ[0][2] : margenesXYZ[1][2],
-        ] = 0
-    mask_borders = im * pred_mem
-    labels = np.unique(mask_borders)
-    df["improved_lines_corr"] = df.apply(lambda x: 0 if x["original_labels"] in labels else x["improved_lines"], axis=1)
+    # im = np.ones(shape=pred_mem.shape)
+    # im[
+    #         margenesXYZ[0][0] : margenesXYZ[1][0],
+    #         margenesXYZ[0][1] : margenesXYZ[1][1],
+    #         margenesXYZ[0][2] : margenesXYZ[1][2],
+    #     ] = 0
+    # mask_borders = im * pred_mem
+    # labels = np.unique(mask_borders)
+    # df["improved_lines_corr"] = df.apply(lambda x: 0 if x["original_labels"] in labels else x["improved_lines"], axis=1)
     # dfnoback = df[df.lines !=0]
     # dfnoback = dfnoback.reset_index(drop=True)
     # dfback = df[df.lines==0]

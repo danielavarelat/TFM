@@ -88,7 +88,6 @@ if __name__ == "__main__":
         midplane = (
             f"/Users/dvarelat/Documents/MASTER/TFM/midplanes/{ESPECIMEN}_midplane.ply"
         )
-        folder_surface = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/SURFACE/{ESPECIMEN}/myo"
         gasp_mem = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
         DFFILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/{folder}/{ESPECIMEN}_cell_properties_radiomics.csv"
         land_json = f"/Users/dvarelat/Documents/MASTER/TFM/landmarks/{ESPECIMEN}_key_points.json"
@@ -122,7 +121,6 @@ if __name__ == "__main__":
             )
         )
         df["degrees"] = df["angle"].apply(lambda x: x * (180.0 / math.pi))
-
         with open(land_json) as json_file:
             data = json.load(json_file)
         p1 = np.round(data["p1"])

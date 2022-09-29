@@ -15,39 +15,33 @@ from skimage import morphology
 import json
 import trimesh
 
-sys.path.insert(1, "/Users/dvarelat/Documents/MASTER/TFM/methods")
+# sys.path.insert(1, "/Users/dvarelat/Documents/MASTER/TFM/methods")
+sys.path.insert(1, "/homedtic/dvarela")
 import cardiac_region
 import importlib
 
 importlib.reload(cardiac_region)
 import cardiac_region as cR
 
-f = open("/Users/dvarelat/Documents/MASTER/TFM/methods/specimens.json")
-
-# f = open("/homedtic/dvarela/specimens.json")
+f = open("/homedtic/dvarela/specimens.json")
 data = json.load(f)
-
-FOLDERS = [
-    element
-    for sublist in [
-        [f"{i[-1]}_2019" + e for e in data[i]]
-        for i in ["stage1", "stage2", "stage3", "stage4"]
-    ]
-    for element in sublist
+flatten_list = [
+    element for sublist in [data[i] for i in ["stage6"]] for element in sublist
 ]
-
 if __name__ == "__main__":
-    for folder in FOLDERS:
-        ESPECIMEN = folder.split("_")[1] + "_" + folder.split("_")[2]
+    for e in flatten_list:
+        ESPECIMEN = f"2019{e}"
+        print(ESPECIMEN)
         ######### INPUTS ----------------------------------------------------------------------------
-        gasp_mem = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
-        DFFILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
-        mesh_myo = f"/Users/dvarelat/Documents/MASTER/TFM/lines_ply_myo/line_{ESPECIMEN}_myo_10000.ply"
-        mesh_spl = f"/Users/dvarelat/Documents/MASTER/TFM/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
-        # mesh_spl = f"/homedtic/dvarela/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
-        # mesh_myo = f"/homedtic/dvarela/lines_ply_myo/line_{ESPECIMEN}_myo_10000.ply"
-        # DFFILE = f"/homedtic/dvarela/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
-        # gasp_mem = f"/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
+        # gasp_mem = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
+        # DFFILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
+        # mesh_myo = f"/Users/dvarelat/Documents/MASTER/TFM/lines_ply_myo/line_{ESPECIMEN}_myo_10000.ply"
+        # mesh_spl = f"/Users/dvarelat/Documents/MASTER/TFM/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
+
+        mesh_spl = f"/homedtic/dvarela/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
+        mesh_myo = f"/homedtic/dvarela/lines_ply_myo/line_{ESPECIMEN}_myo_10000.ply"
+        DFFILE = f"/homedtic/dvarela/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
+        gasp_mem = f"/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
 
         ######### READ DATA ----------------------------------------------------------------------------
         myo = trimesh.load_mesh(mesh_myo, process=False)

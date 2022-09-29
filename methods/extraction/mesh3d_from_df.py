@@ -23,9 +23,8 @@ import importlib
 import json
 import os
 
-sys.path.insert(1, "/Users/dvarelat/Documents/MASTER/TFM/methods")
-# sys.path.insert(1, "/homedtic/dvarela")
-
+# sys.path.insert(1, "/Users/dvarelat/Documents/MASTER/TFM/methods")
+sys.path.insert(1, "/homedtic/dvarela")
 import cardiac_region
 
 importlib.reload(cardiac_region)
@@ -68,96 +67,87 @@ def Median3D_Array(NumpyArray, disk_size):
     return NumpyArray
 
 
+# f = open("/Users/dvarelat/Documents/MASTER/TFM/methods/specimens.json")
 # f = open("/homedtic/dvarela/specimens.json")
-f = open("/Users/dvarelat/Documents/MASTER/TFM/methods/specimens.json")
+# data = json.load(f)
 
-data = json.load(f)
-
-FOLDERS = [
-    element
-    for sublist in [
-        [f"{i[-1]}_2019" + e for e in data[i]] for i in ["stage4"]
-    ]  # "stage1", "stage2", "stage3"
-    for element in sublist
-]
+# flatten_list = [
+#     element for sublist in [data[i] for i in ["stage6"]] for element in sublist
+# ]
+flatten_list = ["0806_E3", "0401_E3", "0401_E1"]
 if __name__ == "__main__":
     dict_bads = {}
-    for folder in ["3_20190516_E3"]:
-        ESPECIMEN = folder.split("_")[1] + "_" + folder.split("_")[2]
+    for e in flatten_list:
+        ESPECIMEN = f"2019{e}"
+
         print(ESPECIMEN)
         ######### INPUTS ----------------------------------------------------------------------------
-        gasp_mem = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
-        FILE = "/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/20190516_E3_cell_properties_radiomics.csv"
-        file_out = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl"
-        line_mesh = f"/Users/dvarelat/Documents/MASTER/TFM/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
-        bad_json = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/pickles_spl_{ESPECIMEN}.json"
+        # gasp_mem = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
+        # FILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
+        # file_out = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/{ESPECIMEN}_MYO_lines_corr.pkl"
+        # line_mesh = f"/Users/dvarelat/Documents/MASTER/TFM/lines_ply_myo/line_{ESPECIMEN}_myo_10000.ply"
+        # bad_json = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/list_meshes/pickles_myo_{ESPECIMEN}.json"
 
         # CLUSTER
-        # gasp_mem = f"/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
-        # FILE = f"/homedtic/dvarela/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
-        # file_out = f"/homedtic/dvarela/EXTRACTION/features/list_meshes/{ESPECIMEN}_SPL_lines_corr.pkl"
-        # line_mesh = f"/homedtic/dvarela/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
-        # line_mesh = f"/homedtic/dvarela/lines_ply_spl/line_{ESPECIMEN}_spl_10000.ply"
-
+        gasp_mem = f"/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
+        FILE = f"/homedtic/dvarela/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
+        file_out = f"/homedtic/dvarela/EXTRACTION/features/list_meshes/{ESPECIMEN}_MYO_lines_corr.pkl"
+        line_mesh = f"/homedtic/dvarela/lines_ply_myo/line_{ESPECIMEN}_myo_10000.ply"
+        bad_json = f"/homedtic/dvarela/EXTRACTION/features/list_meshes/pickles_myo_{ESPECIMEN}.json"
         #### --------------------------------------
-        if os.path.isfile(line_mesh):
-            print(f"Sí existe --> {line_mesh}")
-            df = pd.read_csv(FILE)
-            print(f"Features shape {df.shape}")
-            pred_mem = nib.load(gasp_mem).get_fdata()
-            dim_info = cR.load3D_metadata(gasp_mem)
 
-            print(f"Segmentation shape {pred_mem.shape}")
-            props = ps.metrics.regionprops_3D(morphology.label(pred_mem))
-            df = df[df.spl == 1]
-            indices_props = list(df.cell_in_props.values)
-            print(f"Numero cells - a partir de DF {len(indices_props)}")
-            disk_size = 3
-            meshes = []
-            runtime = time.time()
-            bad = []
-            for i, cell_indice in enumerate(indices_props):
-                print(i, "/", len(indices_props))
-                prop = props[cell_indice]
-                coords = prop.mask * 1
-                add = 10
-                aux = np.zeros(
-                    shape=tuple(np.asarray(coords.shape) + add), dtype="uint8"
-                )
-                aux[
-                    add // 2 : -add // 2, add // 2 : -add // 2, add // 2 : -add // 2
-                ] = coords.copy()
-                coords = aux.copy()
-                del aux
-                coords = Median3D_Array(coords.copy(), disk_size)
-                vert, trian = mcubes.marching_cubes(mcubes.smooth(coords), 0)
-                vert -= vert.mean(axis=0)
-                vert += prop.centroid
-                vert *= np.asarray(
-                    [dim_info["x_res"], dim_info["y_res"], dim_info["z_res"]]
-                )
-                if len(vert) > 0 and len(trian) > 0:
-                    m_cell = trimesh.Trimesh(vert, trian, process=False)
-                    trimesh.smoothing.filter_taubin(
-                        m_cell, lamb=0.5, nu=-0.5, iterations=20
-                    )
-                    m_cell = m_cell.simplify_quadratic_decimation(int(100))  ## BAJARLE
-                    meshes.append(m_cell)
-                else:
-                    print("NO")
-                    bad.append(cell_indice)
-            print(bad)
-            dict_bads[ESPECIMEN] = bad
+        df = pd.read_csv(FILE)
+        print(f"Features shape {df.shape}")
+        pred_mem = nib.load(gasp_mem).get_fdata()
+        dim_info = cR.load3D_metadata(gasp_mem)
 
-            runtime = time.time() - runtime
-            print(f"Meshing took {runtime:.2f} s")
-            print(f"Number elements {len(meshes)}")
-            print(file_out)
-            with open(file_out, "wb") as f:
-                pickle.dump(meshes, f)
-            print("-------------")
-        else:
-            print(f"NOT FOUND --> {line_mesh}")
+        print(f"Segmentation shape {pred_mem.shape}")
+        props = ps.metrics.regionprops_3D(morphology.label(pred_mem))
+        df = df[df.myo == 1]
+        indices_props = list(df.cell_in_props.values)
+        print(f"Numero cells - a partir de DF {len(indices_props)}")
+        disk_size = 3
+        meshes = []
+        runtime = time.time()
+        bad = []
+        for i, cell_indice in enumerate(indices_props):
+            print(i, "/", len(indices_props))
+            prop = props[cell_indice]
+            coords = prop.mask * 1
+            add = 10
+            aux = np.zeros(shape=tuple(np.asarray(coords.shape) + add), dtype="uint8")
+            aux[
+                add // 2 : -add // 2, add // 2 : -add // 2, add // 2 : -add // 2
+            ] = coords.copy()
+            coords = aux.copy()
+            del aux
+            coords = Median3D_Array(coords.copy(), disk_size)
+            vert, trian = mcubes.marching_cubes(mcubes.smooth(coords), 0)
+            vert -= vert.mean(axis=0)
+            vert += prop.centroid
+            vert *= np.asarray(
+                [dim_info["x_res"], dim_info["y_res"], dim_info["z_res"]]
+            )
+            if len(vert) > 0 and len(trian) > 0:
+                m_cell = trimesh.Trimesh(vert, trian, process=False)
+                trimesh.smoothing.filter_taubin(
+                    m_cell, lamb=0.5, nu=-0.5, iterations=20
+                )
+                m_cell = m_cell.simplify_quadratic_decimation(int(100))  ## BAJARLE
+                meshes.append(m_cell)
+            else:
+                print("NO")
+                bad.append(str(cell_indice))
+        print(bad)
+        dict_bads[ESPECIMEN] = bad
+
+        runtime = time.time() - runtime
+        print(f"Meshing took {runtime:.2f} s")
+        print(f"Number elements {len(meshes)}")
+        print(file_out)
+        with open(file_out, "wb") as f:
+            pickle.dump(meshes, f)
+        print("-------------")
         print(dict_bads)
         with open(bad_json, "w") as outfile:
             json.dump(dict_bads, outfile)

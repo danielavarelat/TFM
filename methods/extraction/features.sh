@@ -12,4 +12,4 @@ set -e
 source ~/anaconda3/bin/activate "";
 conda activate porespy3;
 cd /homedtic/dvarela/EXTRACTION
-python add_radiomics.py
+python df_features_radiomics.py

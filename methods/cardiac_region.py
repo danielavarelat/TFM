@@ -2,6 +2,7 @@ import nibabel as nib
 import numpy as np
 import sys
 import os
+import json
 
 sys.path.insert(1, "/homedtic/dvarela")
 import util_daniela as u
@@ -145,22 +146,20 @@ def crop_embryo(margenesXYZ, deconxyz_path):
 
 
 if __name__ == "__main__":
+
+    f = open("/homedtic/dvarela/specimens.json")
+    data = json.load(f)
+
     folder_lines = "/homedtic/dvarela/LINES"
     folder_decon05_mem = "/homedtic/dvarela/DECON_05/MGFP/mem"
-    folder_decon05_nu = "/homedtic/dvarela/DECON_05/DAPI/nu"
-    # especimens = [
-    #     "20190504_E1",
-    #     "20190404_E2",
-    #     "20190520_E4",
-    #     "20190516_E3",
-    #     "20190806_E3",
-    #     "20190520_E2",
-    #     "20190401_E3",
-    #     "20190517_E1",
-    #     "20190520_E1",
-    #     '20190401_E1',
-    # ]
-    especimens = [i.split("_m")[0] for i in os.listdir(folder_decon05_mem)]
+    # folder_decon05_nu = "/homedtic/dvarela/DECON_05/DAPI/nu"
+    especimens = [
+        element
+        for sublist in [[f"2019{e}" for e in data[i]] for i in ["stage6"]]
+        for element in sublist
+    ]
+
+    # especimens = [i.split("_m")[0] for i in os.listdir(folder_decon05_mem)]
 
     for i, e in enumerate(especimens):
         print(f"Specimen {i} --> {e}")
@@ -168,18 +167,18 @@ if __name__ == "__main__":
         deconxyz_path_mGFP = os.path.join(
             folder_decon05_mem, e + "_mGFP_decon_0.5.nii.gz"
         )
-        deconxyz_path_DAPI = os.path.join(
-            folder_decon05_nu, e + "_DAPI_decon_0.5.nii.gz"
-        )
+        # deconxyz_path_DAPI = os.path.join(
+        #     folder_decon05_nu, e + "_DAPI_decon_0.5.nii.gz"
+        # )
 
-        margenesXYZ = crop_line(linefile, deconxyz_path_DAPI, escala2048=False, ma=5)
+        margenesXYZ = crop_line(linefile, deconxyz_path_mGFP, escala2048=False, ma=5)
 
-        crop_n = crop_embryo(margenesXYZ, deconxyz_path_DAPI)
+        # crop_n = crop_embryo(margenesXYZ, deconxyz_path_DAPI)
         crop_m = crop_embryo(margenesXYZ, deconxyz_path_mGFP)
         crop_l = crop_embryo(margenesXYZ, linefile)
 
-        lines_cc_folder = "/homedtic/dvarela/LINES/CC"
-        cardiac_region_folder_nu = "/homedtic/dvarela/CardiacRegion/all/nu"
+        # lines_cc_folder = "/homedtic/dvarela/LINES/CC"
+        # cardiac_region_folder_nu = "/homedtic/dvarela/CardiacRegion/all/nu"
         cardiac_region_folder_mem = "/homedtic/dvarela/CardiacRegion/all/mem"
         # if not os.path.isdir(cardiac_region_folder):
         #     try:
@@ -187,20 +186,20 @@ if __name__ == "__main__":
         #     except OSError:
         #         print("Creation of the directory %s failed" % cardiac_region_folder)
 
-        u.save_nii(
-            crop_n,
-            os.path.join(
-                cardiac_region_folder_nu, e + "_DAPI_CardiacRegion_0.5.nii.gz"
-            ),
-        )
+        # u.save_nii(
+        #     crop_n,
+        #     os.path.join(
+        #         cardiac_region_folder_nu, e + "_DAPI_CardiacRegion_0.5.nii.gz"
+        #     ),
+        # )
         u.save_nii(
             crop_m,
             os.path.join(
                 cardiac_region_folder_mem, e + "_mGFP_CardiacRegion_0.5.nii.gz"
             ),
         )
-        u.save_nii(
-            crop_l,
-            os.path.join(lines_cc_folder, f"line_{e}_CC.nii.gz"),
-        )
+        # u.save_nii(
+        #     crop_l,
+        #     os.path.join(lines_cc_folder, f"line_{e}_CC.nii.gz"),
+        # )
         print("-------------------")

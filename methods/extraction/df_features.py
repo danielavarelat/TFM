@@ -18,31 +18,9 @@ from math import sqrt
 import json
 
 
-# f = open("/Users/dvarelat/Documents/MASTER/TFM/methods/specimens.json")
-f = open("/homedtic/dvarela/specimens.json")
+f = open("/Users/dvarelat/Documents/MASTER/TFM/methods/specimens.json")
+# f = open("/homedtic/dvarela/specimens.json")
 data = json.load(f)
-
-
-def rgbA(value, only_one_color="rgb", minimum=0, maximum=255):
-    # if minimum != -1 or maximum != -1:
-    # minimum, maximum = float(min(value)), float(max(value))
-    zeros = np.zeros(shape=value.shape, dtype=value.dtype)
-    if only_one_color == "rgb":
-        ratio = 2 * (value - minimum) / (maximum - minimum)
-        b = np.maximum(zeros, 255 * (1 - ratio))
-        r = np.maximum(zeros, 255 * (ratio - 1))
-        b = np.asarray(b, dtype="uint8")
-        r = np.asarray(r, dtype="uint8")
-        g = 255 - b - r
-        rgb0 = np.array([r, g, b, zeros + 255]).transpose()
-        return rgb0.astype("uint8")
-
-
-def feature_colorRGB(df, variable):
-    variable255 = df[variable] - df[variable].min()
-    variable255 = 255 * (variable255 / variable255.max())
-    variableRGB = rgbA(variable255)
-    return [list(i) for i in variableRGB]
 
 
 def eccentricity_3D(prop):
@@ -69,30 +47,24 @@ if __name__ == "__main__":
         for element in sublist
     ]
     for folder in ["3_20190516_E3"]:
-        # folder = "4_20190516_E3"
         print(folder)
         ESPECIMEN = folder.split("_")[1] + "_" + folder.split("_")[2]
         # FOLDER = f"/homedtic/dvarela/EXTRACTION/{folder}"
-        FILE = f"/homedtic/dvarela/EXTRACTION/{folder}/{ESPECIMEN}_cell_properties_radiomics.csv"
-        # FILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
-        # linefile = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/CNIC/paraDaniela/lines/line_{ESPECIMEN}.nii.gz"
-        # gasp_mem = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
-        linefile = f"/homedtic/dvarela/LINES/line_{ESPECIMEN}.nii.gz"
-        gasp_mem = f"/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
+        # FILE = f"/homedtic/dvarela/EXTRACTION/{folder}/{ESPECIMEN}_cell_properties_radiomics.csv"
+        FILE = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/EXTRACTION/features/{ESPECIMEN}_cell_properties_radiomics.csv"
+        linefile = (
+            f"/Users/dvarelat/Documents/MASTER/TFM/DATA/LINES/line_{ESPECIMEN}.nii.gz"
+        )
+        gasp_mem = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
+        # linefile = f"/homedtic/dvarela/LINES/line_{ESPECIMEN}.nii.gz"
+        # gasp_mem = f"/homedtic/dvarela/RESULTS/membranes/GASP_PNAS/{ESPECIMEN}_mGFP_XYZ_predictions_GASP.nii.gz"
 
         ## LEER ARCHIVOS
         pred_mem = nib.load(gasp_mem).get_fdata()
         print(pred_mem.shape)
 
-        # pred_nu = nib.load(cellpose_nu).get_fdata()
-        # print(pred_nu.shape)
-
         lines = nib.load(linefile).get_fdata()
         print(lines.shape)
-
-        ## mask on nuclei
-        # mask_mem = np.where(pred_mem != 0, True, False)
-        # mask_on_nuclei = mask_mem * pred_nu
 
         ## props membrane
         props_mem = ps.metrics.regionprops_3D(morphology.label(pred_mem))
@@ -149,27 +121,34 @@ if __name__ == "__main__":
         print("-------------")
 
         ### centroid approach for nuclei
-        # props_nu = ps.metrics.regionprops_3D(morphology.label(mask_on_nuclei))
-        # centroids_nu = [[round(i) for i in p["centroid"]] for p in props_nu]
-        # NU_original_labels_centroids = [pred_nu[c[0], c[1], c[2]] for c in centroids_nu]
-        # labels_centroid_nu_in_mem = [pred_mem[c[0], c[1], c[2]] for c in centroids_nu]
+        ## mask on nuclei
+        cellpose_nu = f"/Users/dvarelat/Documents/MASTER/TFM/DATA/RESULTS/nuclei/{ESPECIMEN}_MASK_EQ_XYZ_decon.nii.gz"
+        pred_nu = nib.load(cellpose_nu).get_fdata()
+        print(pred_nu.shape)
+        mask_mem = np.where(pred_mem != 0, True, False)
+        mask_on_nuclei = mask_mem * pred_nu
+        props_nu = ps.metrics.regionprops_3D(morphology.label(mask_on_nuclei))
+        centroids_nu = [[round(i) for i in p["centroid"]] for p in props_nu]
+        NU_original_labels_centroids = [pred_nu[c[0], c[1], c[2]] for c in centroids_nu]
+        labels_centroid_nu_in_mem = [pred_mem[c[0], c[1], c[2]] for c in centroids_nu]
 
-        # dict_nuclei_membrane_centroids = dict(
-        #     zip(labels_centroid_nu_in_mem, NU_original_labels_centroids)
-        # )
-        # dict_memlabel_cellnumber_props_nuclei = dict(
-        #     zip(labels_centroid_nu_in_mem, range(len(centroids_nu)))
-        # )
+        dict_nuclei_membrane_centroids = dict(
+            zip(labels_centroid_nu_in_mem, NU_original_labels_centroids)
+        )
+        dict_memlabel_cellnumber_props_nuclei = dict(
+            zip(labels_centroid_nu_in_mem, range(len(centroids_nu)))
+        )
 
-        # df["nuclei_label_cent"] = [
-        #     dict_nuclei_membrane_centroids[label]
-        #     if label in labels_centroid_nu_in_mem
-        #     else -1
-        #     for label in df.original_labels
-        # ]
-        # df["nuclei_cell_in_props"] = [
-        #     dict_memlabel_cellnumber_props_nuclei[label]
-        #     if label in labels_centroid_nu_in_mem
-        #     else -1
-        #     for label in df.original_labels
-        # ]
+        df["nuclei_label_cent"] = [
+            dict_nuclei_membrane_centroids[label]
+            if label in labels_centroid_nu_in_mem
+            else -1
+            for label in df.original_labels
+        ]
+        df["nuclei_cell_in_props"] = [
+            dict_memlabel_cellnumber_props_nuclei[label]
+            if label in labels_centroid_nu_in_mem
+            else -1
+            for label in df.original_labels
+        ]
+        df.to_csv(FILE, index=False, header=True)

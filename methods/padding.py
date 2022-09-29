@@ -19,9 +19,7 @@ if __name__ == "__main__":
     f = open("/homedtic/dvarela/specimens.json")
     data = json.load(f)
     flatten_list = [
-        element
-        for sublist in [data[i] for i in ["stage1", "stage2", "stage3", "stage4"]]
-        for element in sublist
+        element for sublist in [data[i] for i in ["stage6"]] for element in sublist
     ]
     gasp = "/homedtic/dvarela/RESULTS/membranes/GASP_PNAS"
     folder_lines = "/homedtic/dvarela/LINES"
@@ -31,7 +29,7 @@ if __name__ == "__main__":
         file_gasp = os.path.join(
             gasp, f"2019{sp}_mGFP_CardiacRegion_0.5_XYZ_predictions_GASP.nii.gz"
         )
-
+        
         linefile = os.path.join(folder_lines, f"line_2019{sp}.nii.gz")
         print(linefile)
         decon = os.path.join(mems, f"2019{sp}_mGFP_decon_0.5.nii.gz")
