@@ -45,8 +45,9 @@ INPUTS:
 		methods/crop_region.sh
 
 		Input: 
-		20190119_E1_DAPI_decon_0.5.nii.gz
-		20190119_E1_mGFP_decon_0.5.nii.gz
+		20190119_E1_DAPI_decon_0.5.nii.gz (si se va a cortar DAPI)
+		20190119_E1_mGFP_decon_0.5.nii.gz (si se va a cortar MGFP)
+		line_20190402_E1.nii.gz (SIEMPRE NECESARIO)
 		Output: 
 		20190119_E1_DAPI_CardiacRegion_0.5.nii.gz
 		20190119_E1_mGFP_CardiacRegion_0.5.nii.gz
